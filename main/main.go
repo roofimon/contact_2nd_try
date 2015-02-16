@@ -1,10 +1,10 @@
 package main
 
 import (
+	"contact"
 	"github.com/ant0ine/go-json-rest/rest"
 	"log"
 	"net/http"
-    "contact"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-    
+
 	api.SetApp(router)
 	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 }
