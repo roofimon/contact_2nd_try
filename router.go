@@ -6,8 +6,8 @@ type Router struct {
 	All, Get, Delete, Update, Add *rest.Route
 }
 
-func NewRouter() *Router {
-	handler := NewHandler()
+func NewRouter(mp Provider) *Router {
+	handler := NewHandler(mp)
 
 	All := &rest.Route{"GET", "/contact", handler.All}
 	Get := &rest.Route{"GET", "/contact/:id", handler.Get}
@@ -18,8 +18,8 @@ func NewRouter() *Router {
 	return &Router{All: All, Get: Get, Delete: Delete, Update: Update, Add: Add}
 }
 
-func MakeRestRouter() (rest.App, error) {
-	contact := NewRouter()
+func MakeRestRouter(mp Provider) (rest.App, error) {
+	contact := NewRouter(mp)
 
 	return rest.MakeRouter(
 		contact.All,

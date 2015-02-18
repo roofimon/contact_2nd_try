@@ -19,7 +19,7 @@ func initialHandler() rest.ResourceHandler {
 		DisableJsonIndent: true,
 		ErrorLogger:       log.New(ioutil.Discard, "", 0),
 	}
-	contact := NewRouter()
+	contact := NewRouter(NewMongoProvider())
 	contactHandler.SetRoutes(contact.All, contact.Get, contact.Delete, contact.Update, contact.Add)
 	return contactHandler
 }

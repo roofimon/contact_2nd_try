@@ -10,7 +10,7 @@ import (
 func main() {
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
-
+	mp := NewMongoProvider()
 	router, err := contact.MakeRestRouter()
 
 	if err != nil {
