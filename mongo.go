@@ -25,18 +25,19 @@ func ContactCollection(s *mgo.Session) *mgo.Collection {
 	return s.DB("test").C("contact")
 }
 
-func (mp *MongoProvider) Get(id string) (Information, error) {
+func (mp *MongoProvider) Get(id string) (i Information, err error) {
 	s := CloneSession()
 	defer s.Close()
 	c := ContactCollection(s)
 
 	result := Information{}
-	err := c.Find(bson.M{"id": id}).One(&result)
+	err = c.Find(bson.M{"id": id}).One(&result)
 
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
-	return result, nil
+	return
 }
 
 func (mp *MongoProvider) All() []Information {
@@ -59,6 +60,7 @@ func (mp *MongoProvider) Update(i Information) error {
 	err := c.Update(target, change)
 
 	if err != nil {
+		log.Fatal(err)
 		return err
 	}
 	return nil
@@ -73,6 +75,7 @@ func (mp *MongoProvider) Delete(id string) error {
 
 	err := c.Remove(target)
 	if err != nil {
+		log.Fatal(err)
 		return err
 	}
 	return nil

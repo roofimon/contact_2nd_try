@@ -12,7 +12,10 @@ func NewHandler(mp Provider) *Handler {
 
 func (h *Handler) Get(w rest.ResponseWriter, r *rest.Request) {
 	id := r.PathParam("id")
-	result, _ := h.provider.Get(id)
+	result, err := h.provider.Get(id)
+	if err != nil {
+		w.WriteJson(map[string]string{"Fail": "Fail to Get"})
+	}
 	w.WriteJson(result)
 }
 
@@ -23,14 +26,20 @@ func (h *Handler) All(w rest.ResponseWriter, r *rest.Request) {
 
 func (h *Handler) Delete(w rest.ResponseWriter, r *rest.Request) {
 	id := r.PathParam("id")
-	h.provider.Delete(id)
+	err := h.provider.Delete(id)
+	if err != nil {
+		w.WriteJson(map[string]string{"Fail": "Fail to Delete"})
+	}
 	w.WriteJson(map[string]string{"Deleted": "Deleted"})
 }
 
 func (h *Handler) Update(w rest.ResponseWriter, r *rest.Request) {
 	var i Information
 	r.DecodeJsonPayload(&i)
-	h.provider.Update(i)
+	err := h.provider.Update(i)
+	if err != nil {
+		w.WriteJson(map[string]string{"Fail": "Fail to Update"})
+	}
 	w.WriteJson(map[string]string{"Updateed": "Updated"})
 }
 
