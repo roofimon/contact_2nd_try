@@ -1,9 +1,10 @@
 package contact
 
 import (
+	"log"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 )
 
 var session *mgo.Session
@@ -25,12 +26,11 @@ func ContactCollection(s *mgo.Session) *mgo.Collection {
 	return s.DB("test").C("contact")
 }
 
-func (mp *MongoProvider) Get(id string) (i Information, err error) {
+func (mp *MongoProvider) Get(id string) (result Information, err error) {
 	s := CloneSession()
 	defer s.Close()
 	c := ContactCollection(s)
 
-	result := Information{}
 	err = c.Find(bson.M{"id": id}).One(&result)
 
 	if err != nil {

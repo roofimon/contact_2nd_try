@@ -9,11 +9,35 @@ type Router struct {
 func NewRouter(mp Provider) *Router {
 	handler := NewHandler(mp)
 
-	All := &rest.Route{"GET", "/contact", handler.All}
-	Get := &rest.Route{"GET", "/contact/:id", handler.Get}
-	Delete := &rest.Route{"DELETE", "/contact/:id", handler.Delete}
-	Update := &rest.Route{"PUT", "/contact/:id", handler.Get}
-	Add := &rest.Route{"POST", "/contact", handler.Add}
+	All := &rest.Route{
+		HttpMethod: "GET",
+		PathExp:    "/contact",
+		Func:       handler.All,
+	}
+
+	Get := &rest.Route{
+		HttpMethod: "GET",
+		PathExp:    "/contact/:id",
+		Func:       handler.Get,
+	}
+
+	Delete := &rest.Route{
+		HttpMethod: "DELETE",
+		PathExp:    "/contact/:id",
+		Func:       handler.Delete,
+	}
+
+	Update := &rest.Route{
+		HttpMethod: "PUT",
+		PathExp:    "/contact/:id",
+		Func:       handler.Get,
+	}
+
+	Add := &rest.Route{
+		HttpMethod: "POST",
+		PathExp:    "/contact",
+		Func:       handler.Add,
+	}
 
 	return &Router{All: All, Get: Get, Delete: Delete, Update: Update, Add: Add}
 }
