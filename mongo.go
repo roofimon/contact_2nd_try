@@ -32,11 +32,8 @@ func (mp *MongoProvider) Get(id string) (result Information, err error) {
 	c := ContactCollection(s)
 
 	err = c.Find(bson.M{"id": id}).One(&result)
+	err = handleError(err)
 
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 	return
 }
 
@@ -58,12 +55,7 @@ func (mp *MongoProvider) Update(i Information) error {
 	defer s.Close()
 
 	err := c.Update(target, change)
-
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	return nil
+	return handleError(err)
 }
 
 func (mp *MongoProvider) Delete(id string) error {
@@ -74,11 +66,7 @@ func (mp *MongoProvider) Delete(id string) error {
 	defer s.Close()
 
 	err := c.Remove(target)
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	return nil
+	return handleError(err)
 }
 
 func (mp *MongoProvider) Add(i *Information) error {
@@ -86,6 +74,10 @@ func (mp *MongoProvider) Add(i *Information) error {
 	c := ContactCollection(s)
 	defer s.Close()
 	err := c.Insert(i)
+	return handleError(err)
+}
+
+func handleError(err error) error {
 	if err != nil {
 		log.Fatal(err)
 		return err
