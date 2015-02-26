@@ -47,34 +47,49 @@ func (mp *MongoProvider) All() []Information {
 }
 
 func (mp *MongoProvider) Update(i Information) error {
-	target := bson.M{"id": i.Id}
-	change := bson.M{"$set": bson.M{"id": i.Id, "email": i.Email, "title": i.Title, "content": i.Content}}
-
-	s := CloneSession()
-	c := ContactCollection(s)
-	defer s.Close()
-
-	err := c.Update(target, change)
+	err := sessionHandler(update)(i)
 	return handleError(err)
 }
 
 func (mp *MongoProvider) Delete(id string) error {
-	target := bson.M{"id": id}
-
-	s := CloneSession()
-	c := ContactCollection(s)
-	defer s.Close()
-
-	err := c.Remove(target)
+	err := sessionHandler(delete)(id)
 	return handleError(err)
 }
 
-func (mp *MongoProvider) Add(i *Information) error {
-	s := CloneSession()
-	c := ContactCollection(s)
-	defer s.Close()
-	err := c.Insert(i)
+func (mp *MongoProvider) Add(i Information) error {
+	err := sessionHandler(add)(i)
 	return handleError(err)
+}
+
+type action func(*mgo.Collection, interface{}) error
+type wrapper func(interface{}) error
+
+func sessionHandler(a action) wrapper {
+	return func(input interface{}) error {
+		s := CloneSession()
+		c := ContactCollection(s)
+		defer s.Close()
+
+		return a(c, input)
+	}
+}
+
+func update(c *mgo.Collection, input interface{}) error {
+	i, _ := input.(Information)
+	target := bson.M{"id": i.Id}
+	change := bson.M{"$set": bson.M{"id": i.Id, "email": i.Email, "title": i.Title, "content": i.Content}}
+	return c.Update(target, change)
+}
+
+func delete(c *mgo.Collection, input interface{}) error {
+	id, _ := input.(string)
+	target := bson.M{"id": id}
+	return c.Remove(target)
+}
+
+func add(c *mgo.Collection, input interface{}) error {
+	i, _ := input.(Information)
+	return c.Insert(i)
 }
 
 func handleError(err error) error {
