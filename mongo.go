@@ -56,7 +56,7 @@ func (mp *MongoProvider) Delete(id string) error {
 	return handleError(err)
 }
 
-func (mp *MongoProvider) Add(i Information) error {
+func (mp *MongoProvider) Add(i *Information) error {
 	err := sessionHandler(add)(i)
 	return handleError(err)
 }
