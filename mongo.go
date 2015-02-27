@@ -9,11 +9,13 @@ import (
 
 var session *mgo.Session
 
-type MongoProvider struct{}
+type MongoProvider struct {
+	session *mgo.Session
+}
 
 func NewMongoProvider() *MongoProvider {
-	session, _ = mgo.Dial("localhost")
-	return &MongoProvider{}
+	session, _ := mgo.Dial("localhost")
+	return &MongoProvider{session}
 }
 
 func CloneSession() *mgo.Session {
@@ -27,21 +29,21 @@ func ContactCollection(s *mgo.Session) *mgo.Collection {
 }
 
 func (mp *MongoProvider) Get(id string) (result Information, err error) {
-	s := CloneSession()
+	s := mp.session.Clone()
 	defer s.Close()
 	c := ContactCollection(s)
 
-	err = c.Find(bson.M{"id": id}).One(&result)
+	err = c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
 	err = handleError(err)
 
 	return
 }
 
 func (mp *MongoProvider) All() []Information {
-	result := []Information{}
-	s := CloneSession()
+	s := mp.session.Clone()
 	c := ContactCollection(s)
 
+	var result []Information
 	c.Find(nil).All(&result)
 	return result
 }
