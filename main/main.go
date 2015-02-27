@@ -1,8 +1,8 @@
 package main
 
 import (
-	"contact"
 	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/roofimon/contact"
 	"log"
 	"net/http"
 )
