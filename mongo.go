@@ -38,7 +38,7 @@ func (mp *MongoProvider) Get(id string) (result Information, err error) {
 
 func (mp *MongoProvider) All() (result []Information) {
 	do(mp.session.Clone(), find, nil).all(&result)
-	return result
+	return
 }
 
 type query struct {
