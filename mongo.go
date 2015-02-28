@@ -29,23 +29,54 @@ func ContactCollection(s *mgo.Session) *mgo.Collection {
 }
 
 func (mp *MongoProvider) Get(id string) (result Information, err error) {
-	s := mp.session.Clone()
-	defer s.Close()
-	c := ContactCollection(s)
-
-	err = c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
+	v := bson.M{"_id": bson.ObjectIdHex(id)}
+	err = do(mp.session.Clone(), find, v).one(&result)
 	err = handleError(err)
 
 	return
 }
 
-func (mp *MongoProvider) All() []Information {
-	s := mp.session.Clone()
-	c := ContactCollection(s)
-
-	var result []Information
-	c.Find(nil).All(&result)
+func (mp *MongoProvider) All() (result []Information) {
+	do(mp.session.Clone(), find, nil).all(&result)
 	return result
+}
+
+type query struct {
+	s *mgo.Session
+	q chan *mgo.Query
+}
+
+func (q *query) all(v interface{}) error {
+	defer q.s.Close()
+	return q.retrieveQuery().All(v)
+}
+
+func (q *query) one(v interface{}) error {
+	defer q.s.Close()
+	return q.retrieveQuery().One(v)
+}
+
+func (q *query) retrieveQuery() *mgo.Query {
+	for {
+		select {
+		case query := <-q.q:
+			return query
+		}
+	}
+}
+
+type queryFunc func(c *mgo.Collection, v interface{}) *mgo.Query
+
+func do(s *mgo.Session, fn queryFunc, v interface{}) *query {
+	q := make(chan *mgo.Query)
+	go func() {
+		q <- fn(ContactCollection(s), v)
+	}()
+	return &query{s, q}
+}
+
+func find(c *mgo.Collection, v interface{}) *mgo.Query {
+	return c.Find(v)
 }
 
 func (mp *MongoProvider) Update(i Information) error {
